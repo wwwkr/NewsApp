@@ -9,14 +9,15 @@ object Versions {
     const val CONSTRAINT_LAYOUT = "2.1.4"
 
     // KTX
-    const val CORE = "1.12.0"
+    const val CORE = "1.10.0"
     const val KTX_ACTIVITY = "1.7.2"
     const val KTX_FRAGMENT = "1.6.1"
-    const val KTX_LIFECYCLE = "2.7.0"
+    const val KTX_LIFECYCLE = "2.6.0"
 
     // Compose
-    const val COMPOSE_ACTIVITY = "1.8.2"
+    const val COMPOSE_ACTIVITY = "1.7.2"
     const val COMPOSE_BOM = "2022.10.00"
+    const val COMPOSE_NAVIGATION = "2.4.2"
 
     // TEST
     const val UNIT_TEST_JUNIT = "4.13.2"
@@ -73,10 +74,11 @@ object Libraries {
         const val COMPOSE_UI = "androidx.compose.ui:ui"
         const val COMPOSE_UI_GRAPHICS = "androidx.compose.ui:ui-graphics"
         const val COMPOSE_UI_TOOLING_PREVIEW = "androidx.compose.ui:ui-tooling-preview"
-        const val COMPOSE_UI_MATERIAL3 = "androidx.compose.material3:material3"
+        const val COMPOSE_MATERIAL3 = "androidx.compose.material3:material3"
         const val COMPOSE_UI_TEST_JUNIT4 = "androidx.compose.ui:ui-test-junit4"
         const val COMPOSE_UI_TOOLING = "androidx.compose.ui:ui-tooling"
         const val COMPOSE_UI_TEST_MANIFEST = "androidx.compose.ui:ui-test-manifest"
+        const val COMPOSE_NAVIGATION = "androidx.navigation:navigation-compose:${Versions.COMPOSE_NAVIGATION}"
     }
 
     object Test {
@@ -91,6 +93,12 @@ object Libraries {
     object Hilt {
         const val HILT = "com.google.dagger:hilt-android:${Versions.HILT}"
         const val KAPT_HILT = "com.google.dagger:hilt-compiler:${Versions.HILT}"
+    }
+
+    object Room {
+        const val KTX_ROOM = "androidx.room:room-ktx:${Versions.ROOM}"
+        const val KAPT_ROOM = "androidx.room:room-compiler:${Versions.ROOM}"
+        const val ROOM = "androidx.room:room-runtime:${Versions.ROOM}"
     }
 
     object Network {
