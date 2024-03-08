@@ -1,11 +1,13 @@
 package com.wwwkr.newsapp.ui
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
@@ -29,8 +31,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -38,14 +46,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.google.gson.Gson
 import com.skydoves.landscapist.glide.GlideImage
 import com.wwwkr.domain.model.ArticleModel
 import com.wwwkr.newsapp.MainViewModel
+import com.wwwkr.newsapp.R
 import com.wwwkr.newsapp.components.UiState
 import com.wwwkr.newsapp.model.BottomNavItem
 import com.wwwkr.newsapp.ui.theme.NewsAppTheme
@@ -70,13 +81,8 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        init()
     }
 
-
-    private fun init() {
-        viewModel.getNews("kr")
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -86,7 +92,7 @@ fun MainScreen(viewModel: MainViewModel) {
     Scaffold(
         bottomBar = { BottomNavigation(navController = navController) }
     ) {
-        Box(Modifier.padding(it)){
+        Box(Modifier.padding(it)) {
             NavigationGraph(navController = navController, viewModel = viewModel)
         }
     }
@@ -98,7 +104,6 @@ fun BottomNavigation(navController: NavHostController) {
         BottomNavItem.News,
         BottomNavItem.Scrap
     )
-
 
     NavigationBar(
         containerColor = Color.White,
@@ -139,25 +144,93 @@ fun BottomNavigation(navController: NavHostController) {
         }
     }
 }
+
+
 @Composable
-fun NewsItem(item: ArticleModel) {
+fun NewsScreen(viewModel: MainViewModel) {
+
+    LaunchedEffect(Unit) {
+        viewModel.getNews("kr")
+    }
+
+    val datas by viewModel.getNewsStateFlow.collectAsState()
+
+    val itemList by if(datas is UiState.Success) {
+        remember {
+            mutableStateOf((datas as UiState.Success<List<ArticleModel>>).data)
+        }
+    } else remember {
+        mutableStateOf(listOf())
+    }
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.primary)
+    ) {
+        items(itemList) { item ->
+            NewsItem(item = item, viewModel = viewModel, isScrapView = false)
+        }
+
+
+    }
+}
+
+
+@Composable
+fun NewsItem(item: ArticleModel, viewModel: MainViewModel, isScrapView: Boolean) {
+
+    val itemState by remember {
+        mutableStateOf(item.copy())
+    }
+
+    var scrapState by remember {
+        mutableStateOf(itemState.isScraped)
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(10.dp)
             // 세로 높이를 높이기 위해 aspectRatio를 조정합니다. 예를 들어 3f / 2f로 설정하여 더 높은 비율을 제공합니다.
-            .aspectRatio(4f / 3f),
+            .aspectRatio(1f),
         shape = RoundedCornerShape(12.dp)
     ) {
         Column {
             // 이미지의 비율을 2로 설정하여 전체 공간의 2/3를 차지하게 합니다.
-            GlideImage(
+
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(2f),
-                imageModel = item.urlToImage ?: "",
-                contentDescription = null
             )
+            {
+                GlideImage(
+                    imageModel = itemState.urlToImage ?: "",
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize()
+                )
+
+                Image(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(10.dp)
+                        .clickable {
+
+                            viewModel.apply {
+                                when (scrapState) {
+                                    false -> insertNews(item = itemState)
+                                    true -> deleteNews(item = itemState, isScrapView = isScrapView)
+                                }
+                            }
+
+                        },
+                    painter = if (scrapState) painterResource(id = R.drawable.ic_full_hart)
+                                else painterResource(id = R.drawable.ic_empty_hart
+                    ),
+                    contentDescription = "스크랩"
+                )
+            }
 
             // 텍스트의 비율을 1로 설정하여 전체 공간의 1/3를 차지하게 합니다.
             Text(
@@ -165,44 +238,44 @@ fun NewsItem(item: ArticleModel) {
                     .fillMaxWidth()
                     .weight(1f)
                     .padding(8.dp), // 텍스트 내부에 패딩을 추가하여 읽기 쉽게 합니다.
-                text = item.description ?: "",
+                text = itemState.description ?: "",
                 style = MaterialTheme.typography.bodyMedium // 텍스트 스타일을 설정할 수 있습니다.
             )
         }
     }
 }
 
-@Composable
-fun NewsScreen(viewModel: MainViewModel) {
 
-    val datas by viewModel.getNewsStateFlow.collectAsState()
+@Composable
+fun ScrapScreen(viewModel: MainViewModel) {
+
+    LaunchedEffect(Unit) {
+        viewModel.getScrapNews()
+    }
+
+    val datas by viewModel.getScrapNewsStateFlow.collectAsState()
+
+    val itemList by if(datas is UiState.Success) {
+        remember {
+            mutableStateOf((datas as UiState.Success<List<ArticleModel>>).data)
+        }
+    } else remember {
+        mutableStateOf(listOf())
+    }
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.primary)
     ) {
+        items(itemList) { item ->
 
-        if (datas is UiState.Success<List<ArticleModel>>) {
-            val articleData = (datas as UiState.Success<List<ArticleModel>>).data
-            items(articleData) { item ->
-                NewsItem(item = item)
-            }
+            NewsItem(item = item, viewModel = viewModel, isScrapView = true)
         }
 
 
     }
-}
 
-
-@Composable
-fun ScrapScreen(viewModel: MainViewModel) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.primary)
-    ) {
-
-    }
 }
 
 @Composable

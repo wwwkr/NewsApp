@@ -1,5 +1,6 @@
 package com.wwwkr.newsapp
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wwwkr.domain.model.ArticleModel
@@ -82,7 +83,7 @@ class MainViewModel @Inject constructor(private val newsUseCase: NewsUseCase) : 
                 val updatedArticles = currentData.filter { newsItem ->
                     newsItem.title != item.title
                 }
-                _getScrapNewsStateFlow.value = UiState.Success(updatedArticles)
+                _getScrapNewsStateFlow.value = UiState.Success(updatedArticles.toList())
             }
         }else {
             val currentState = _getNewsStateFlow.value
@@ -97,7 +98,7 @@ class MainViewModel @Inject constructor(private val newsUseCase: NewsUseCase) : 
                     }
                 }
                 // 변경된 데이터로 UiState를 갱신합니다.
-                _getNewsStateFlow.value = UiState.Success(updatedArticles)
+                _getNewsStateFlow.value = UiState.Success(updatedArticles.toList())
             }
         }
 
