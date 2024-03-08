@@ -169,7 +169,10 @@ fun NewsScreen(viewModel: MainViewModel) {
             .background(MaterialTheme.colorScheme.primary)
     ) {
         items(itemList) { item ->
-            NewsItem(item = item, viewModel = viewModel, isScrapView = false)
+            val itemState by  remember {
+                mutableStateOf(item)
+            }
+            NewsItem(item = itemState, viewModel = viewModel, isScrapView = false)
         }
 
 
@@ -179,14 +182,6 @@ fun NewsScreen(viewModel: MainViewModel) {
 
 @Composable
 fun NewsItem(item: ArticleModel, viewModel: MainViewModel, isScrapView: Boolean) {
-
-    val itemState by remember {
-        mutableStateOf(item.copy())
-    }
-
-    var scrapState by remember {
-        mutableStateOf(itemState.isScraped)
-    }
 
     Card(
         modifier = Modifier
@@ -206,7 +201,7 @@ fun NewsItem(item: ArticleModel, viewModel: MainViewModel, isScrapView: Boolean)
             )
             {
                 GlideImage(
-                    imageModel = itemState.urlToImage ?: "",
+                    imageModel = item.urlToImage ?: "",
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize()
                 )
@@ -217,15 +212,17 @@ fun NewsItem(item: ArticleModel, viewModel: MainViewModel, isScrapView: Boolean)
                         .padding(10.dp)
                         .clickable {
 
+                            item.isScraped = !item.isScraped
+                            
                             viewModel.apply {
-                                when (scrapState) {
-                                    false -> insertNews(item = itemState)
-                                    true -> deleteNews(item = itemState, isScrapView = isScrapView)
+                                when (item.isScraped) {
+                                    true -> insertNews(item = item)
+                                    false -> deleteNews(item = item, isScrapView = isScrapView)
                                 }
                             }
 
                         },
-                    painter = if (scrapState) painterResource(id = R.drawable.ic_full_hart)
+                    painter = if (item.isScraped) painterResource(id = R.drawable.ic_full_hart)
                                 else painterResource(id = R.drawable.ic_empty_hart
                     ),
                     contentDescription = "스크랩"
@@ -238,7 +235,7 @@ fun NewsItem(item: ArticleModel, viewModel: MainViewModel, isScrapView: Boolean)
                     .fillMaxWidth()
                     .weight(1f)
                     .padding(8.dp), // 텍스트 내부에 패딩을 추가하여 읽기 쉽게 합니다.
-                text = itemState.description ?: "",
+                text = item.description ?: "",
                 style = MaterialTheme.typography.bodyMedium // 텍스트 스타일을 설정할 수 있습니다.
             )
         }
@@ -269,8 +266,10 @@ fun ScrapScreen(viewModel: MainViewModel) {
             .background(MaterialTheme.colorScheme.primary)
     ) {
         items(itemList) { item ->
-
-            NewsItem(item = item, viewModel = viewModel, isScrapView = true)
+            val itemState by  remember {
+                mutableStateOf(item)
+            }
+            NewsItem(item = itemState, viewModel = viewModel, isScrapView = true)
         }
 
 
