@@ -3,6 +3,7 @@ package com.wwwkr.newsapp
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.gson.Gson
 import com.wwwkr.domain.model.ArticleModel
 import com.wwwkr.domain.model.NewsResponseModel
 import com.wwwkr.domain.usecase.NewsUseCase
@@ -12,6 +13,7 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
@@ -49,13 +51,13 @@ class MainViewModel @Inject constructor(private val newsUseCase: NewsUseCase) : 
             }.catch {
                 _getNewsStateFlow.value = UiState.Error(it.message.toString())
             }.collect {
-                _getNewsStateFlow.value = UiState.Success(it.articles!!)
+                _getNewsStateFlow.value = UiState.Success(it.articles?.toList() ?: listOf())
             }
     }
 
     fun getScrapNews() = viewModelScope.launch {
         newsUseCase.selectNews()
-            .collect {
+            .collectLatest {
                 _getScrapNewsStateFlow.value = UiState.Success(it)
             }
     }
@@ -75,7 +77,6 @@ class MainViewModel @Inject constructor(private val newsUseCase: NewsUseCase) : 
 
 
     private fun changeScraped(item: ArticleModel, isScrapView : Boolean = false){
-
         if(isScrapView) {
             val currentState = _getScrapNewsStateFlow.value
             if (currentState is UiState.Success) {
@@ -83,7 +84,8 @@ class MainViewModel @Inject constructor(private val newsUseCase: NewsUseCase) : 
                 val updatedArticles = currentData.filter { newsItem ->
                     newsItem.title != item.title
                 }
-                _getScrapNewsStateFlow.value = UiState.Success(updatedArticles.toList())
+
+                _getScrapNewsStateFlow.value = UiState.Success(updatedArticles)
             }
         }else {
             val currentState = _getNewsStateFlow.value
@@ -98,7 +100,7 @@ class MainViewModel @Inject constructor(private val newsUseCase: NewsUseCase) : 
                     }
                 }
                 // 변경된 데이터로 UiState를 갱신합니다.
-                _getNewsStateFlow.value = UiState.Success(updatedArticles.toList())
+                _getNewsStateFlow.value = UiState.Success(updatedArticles)
             }
         }
 

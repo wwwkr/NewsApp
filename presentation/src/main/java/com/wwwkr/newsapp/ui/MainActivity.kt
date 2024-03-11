@@ -155,7 +155,7 @@ fun NewsScreen(viewModel: MainViewModel) {
 
     val datas by viewModel.getNewsStateFlow.collectAsState()
 
-    val itemList by if(datas is UiState.Success) {
+    val itemList by if (datas is UiState.Success) {
         remember {
             mutableStateOf((datas as UiState.Success<List<ArticleModel>>).data)
         }
@@ -169,14 +169,39 @@ fun NewsScreen(viewModel: MainViewModel) {
             .background(MaterialTheme.colorScheme.primary)
     ) {
         items(itemList) { item ->
-            val itemState by  remember {
-                mutableStateOf(item)
-            }
-            NewsItem(item = itemState, viewModel = viewModel, isScrapView = false)
+            NewsItem(item = item, viewModel = viewModel, isScrapView = false)
+        }
+    }
+}
+
+
+
+@Composable
+fun ScrapScreen(viewModel: MainViewModel) {
+
+    LaunchedEffect(Unit) {
+        viewModel.getScrapNews()
+    }
+
+    val datas by viewModel.getScrapNewsStateFlow.collectAsState()
+
+    val itemList = if (datas is UiState.Success) {
+        (datas as UiState.Success<List<ArticleModel>>).data
+    } else  {
+        listOf()
+    }
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.primary)
+    ) {
+        items(itemList) { item ->
+            NewsItem(item = item, viewModel = viewModel, isScrapView = true)
         }
 
-
     }
+
 }
 
 
@@ -213,7 +238,7 @@ fun NewsItem(item: ArticleModel, viewModel: MainViewModel, isScrapView: Boolean)
                         .clickable {
 
                             item.isScraped = !item.isScraped
-                            
+
                             viewModel.apply {
                                 when (item.isScraped) {
                                     true -> insertNews(item = item)
@@ -222,9 +247,10 @@ fun NewsItem(item: ArticleModel, viewModel: MainViewModel, isScrapView: Boolean)
                             }
 
                         },
-                    painter = if (item.isScraped) painterResource(id = R.drawable.ic_full_hart)
-                                else painterResource(id = R.drawable.ic_empty_hart
-                    ),
+                    painter = if (item.isScraped)
+                        painterResource(id = R.drawable.ic_full_hart)
+                    else
+                        painterResource(id = R.drawable.ic_empty_hart),
                     contentDescription = "스크랩"
                 )
             }
@@ -242,40 +268,6 @@ fun NewsItem(item: ArticleModel, viewModel: MainViewModel, isScrapView: Boolean)
     }
 }
 
-
-@Composable
-fun ScrapScreen(viewModel: MainViewModel) {
-
-    LaunchedEffect(Unit) {
-        viewModel.getScrapNews()
-    }
-
-    val datas by viewModel.getScrapNewsStateFlow.collectAsState()
-
-    val itemList by if(datas is UiState.Success) {
-        remember {
-            mutableStateOf((datas as UiState.Success<List<ArticleModel>>).data)
-        }
-    } else remember {
-        mutableStateOf(listOf())
-    }
-
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.primary)
-    ) {
-        items(itemList) { item ->
-            val itemState by  remember {
-                mutableStateOf(item)
-            }
-            NewsItem(item = itemState, viewModel = viewModel, isScrapView = true)
-        }
-
-
-    }
-
-}
 
 @Composable
 fun NavigationGraph(navController: NavHostController, viewModel: MainViewModel) {
