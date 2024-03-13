@@ -104,10 +104,12 @@ fun NewsScreen(viewModel: MainViewModel, onItemClickListener: () -> Unit) {
 
     val datas by viewModel.newsStateFlow.collectAsStateWithLifecycle()
 
-    val itemList = if (datas is UiState.Success) {
-        (datas as UiState.Success<List<ArticleModel>>).data
-    } else  {
-        listOf()
+    val itemList by if (datas is UiState.Success) {
+        remember {
+            mutableStateOf((datas as UiState.Success<List<ArticleModel>>).data)
+        }
+    } else remember {
+        mutableStateOf(listOf())
     }
 
     LazyColumn(
@@ -116,7 +118,7 @@ fun NewsScreen(viewModel: MainViewModel, onItemClickListener: () -> Unit) {
             .background(MaterialTheme.colorScheme.primary)
     ) {
         items(itemList) { item ->
-            NewsItem(item = item, viewModel = viewModel) {
+            NewsItem(item = item, viewModel = viewModel, isScrapView = false) {
                 onItemClickListener()
             }
         }
@@ -144,7 +146,7 @@ fun ScrapScreen(viewModel: MainViewModel, onItemClickListener: () -> Unit) {
             .background(MaterialTheme.colorScheme.primary)
     ) {
         items(itemList) { item ->
-            NewsItem(item = item, viewModel = viewModel) {
+            NewsItem(item = item, viewModel = viewModel, isScrapView = true) {
                 onItemClickListener()
             }
         }
@@ -155,7 +157,7 @@ fun ScrapScreen(viewModel: MainViewModel, onItemClickListener: () -> Unit) {
 
 
 @Composable
-fun NewsItem(item: ArticleModel, viewModel: MainViewModel, onItemClickListener : () -> Unit) {
+fun NewsItem(item: ArticleModel, viewModel: MainViewModel, isScrapView: Boolean, onItemClickListener : () -> Unit) {
 
     Card(
         modifier = Modifier
@@ -196,7 +198,7 @@ fun NewsItem(item: ArticleModel, viewModel: MainViewModel, onItemClickListener :
                             viewModel.apply {
                                 when (item.isScraped) {
                                     true -> insertNews(item = item)
-                                    false -> deleteNews(item = item)
+                                    false -> deleteNews(item = item, isScrapView = isScrapView)
                                 }
                             }
 

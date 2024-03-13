@@ -34,8 +34,8 @@ class MainViewModel @Inject constructor(
         insertScrapNewsUseCase(item = item.copy(isScraped = true))
     }
 
-    fun deleteNews(item: ArticleModel) = viewModelScope.launch {
-        deleteScrapNewsUseCase(item = item)
+    fun deleteNews(item: ArticleModel, isScrapView: Boolean) = viewModelScope.launch {
+        deleteScrapNewsUseCase.invoke(item = item, isScrapView = isScrapView)
     }
 
 
