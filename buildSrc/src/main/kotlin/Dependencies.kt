@@ -41,6 +41,7 @@ object Versions {
 
     // Glide
     const val GLIDE = "4.16.0"
+    const val COMPOSE_GLIDE = "1.3.7"
 
     // SWIPERE
     const val SWIPE = "1.1.0"
@@ -79,6 +80,7 @@ object Libraries {
         const val COMPOSE_UI_TOOLING = "androidx.compose.ui:ui-tooling"
         const val COMPOSE_UI_TEST_MANIFEST = "androidx.compose.ui:ui-test-manifest"
         const val COMPOSE_NAVIGATION = "androidx.navigation:navigation-compose:${Versions.COMPOSE_NAVIGATION}"
+        const val COMPOSE_RUNTIME = "androidx.lifecycle:lifecycle-runtime-compose"
     }
 
     object Test {
@@ -118,5 +120,6 @@ object Libraries {
 
     object Glide {
         const val GLIDE = "com.github.bumptech.glide:glide:${Versions.GLIDE}"
+        const val COMPOSE_GLIDE = "com.github.skydoves:landscapist-glide:${Versions.COMPOSE_GLIDE}"
     }
 }

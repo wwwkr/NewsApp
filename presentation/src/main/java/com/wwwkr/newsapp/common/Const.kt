@@ -5,4 +5,6 @@ object Const {
     const val NEWS = "NEWS"
     const val SCRAP = "SCRAP"
 
+    const val ROUTE_WEBVIEW = "WEBVIEW"
+
 }

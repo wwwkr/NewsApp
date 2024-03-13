@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.wwwkr.data.datasource.local.database.entity.NewsEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface NewsDao {
