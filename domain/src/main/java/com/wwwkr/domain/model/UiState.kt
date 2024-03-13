@@ -1,4 +1,4 @@
-package com.wwwkr.newsapp.components
+package com.wwwkr.domain.model
 
 sealed class UiState<out T> {
     object Loading : UiState<Nothing>()

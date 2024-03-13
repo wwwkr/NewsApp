@@ -69,6 +69,7 @@ dependencies {
     implementation (Libraries.Compose.COMPOSE_UI_TOOLING_PREVIEW)
     implementation (Libraries.Compose.COMPOSE_MATERIAL3)
     implementation (Libraries.Compose.COMPOSE_NAVIGATION)
+    implementation (Libraries.Compose.COMPOSE_RUNTIME)
 
     androidTestImplementation(platform(Libraries.Compose.COMPOSE_BOM))
     debugImplementation (Libraries.Compose.COMPOSE_UI_TOOLING)
@@ -98,6 +99,6 @@ dependencies {
     implementation(Libraries.Network.OKHTTP_LOGGING_INTERCEPTOR)
 
     // Glide
-    implementation("com.github.skydoves:landscapist-glide:1.3.7")
+    implementation(Libraries.Glide.COMPOSE_GLIDE)
 }
 

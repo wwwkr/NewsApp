@@ -1,7 +1,8 @@
 package com.wwwkr.newsapp.di
 
-import com.wwwkr.data.datasource.local.NewsLocalSource
-import com.wwwkr.data.datasource.remote.NewsRemoteSource
+import com.wwwkr.data.datasource.local.NewsLocalDataSource
+import com.wwwkr.data.datasource.local.NewsLocalDataSourceImpl
+import com.wwwkr.data.datasource.remote.NewsRemoteDataSource
 import com.wwwkr.data.repository.NewsRepositoryImpl
 import com.wwwkr.domain.repository.NewsRepository
 import dagger.Module
@@ -17,9 +18,9 @@ class RepositoryModule {
     @Provides
     @Singleton
     fun newsRepository(
-        newsRemoteSource: NewsRemoteSource,
-        newsLocalSource: NewsLocalSource
-    ): NewsRepository = NewsRepositoryImpl(newsRemoteSource = newsRemoteSource, newsLocalSource = newsLocalSource)
+        newsRemoteDataSource: NewsRemoteDataSource,
+        localNewsDataSource: NewsLocalDataSource
+    ): NewsRepository = NewsRepositoryImpl(newsRemoteDataSource = newsRemoteDataSource, newsLocalDataSource = localNewsDataSource)
 
 
 
