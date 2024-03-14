@@ -6,17 +6,15 @@ object Versions {
     // AndroidX
     const val APP_COMPAT = "1.6.1"
     const val MATERIAL = "1.9.0"
-    const val CONSTRAINT_LAYOUT = "2.1.4"
 
     // KTX
-    const val CORE = "1.12.0"
-    const val KTX_ACTIVITY = "1.7.2"
-    const val KTX_FRAGMENT = "1.6.1"
-    const val KTX_LIFECYCLE = "2.7.0"
+    const val CORE = "1.10.0"
+    const val KTX_LIFECYCLE = "2.6.0"
 
     // Compose
-    const val COMPOSE_ACTIVITY = "1.8.2"
+    const val COMPOSE_ACTIVITY = "1.7.2"
     const val COMPOSE_BOM = "2022.10.00"
+    const val COMPOSE_NAVIGATION = "2.4.2"
 
     // TEST
     const val UNIT_TEST_JUNIT = "4.13.2"
@@ -35,14 +33,8 @@ object Versions {
     // Room
     const val ROOM = "2.5.2"
 
-    // Jetpack Navigation
-    const val NAVIGATION = "2.3.5"
-
     // Glide
-    const val GLIDE = "4.16.0"
-
-    // SWIPERE
-    const val SWIPE = "1.1.0"
+    const val COMPOSE_GLIDE = "1.3.7"
 }
 
 
@@ -54,15 +46,10 @@ object Libraries {
     object AndroidX {
         const val APP_COMPAT = "androidx.appcompat:appcompat:${Versions.APP_COMPAT}"
         const val MATERIAL = "com.google.android.material:material:${Versions.MATERIAL}"
-        const val CONSTRAINT_LAYOUT = "androidx.constraintlayout:constraintlayout:${Versions.CONSTRAINT_LAYOUT}"
-        const val FRAGMENT = "androidx.fragment:fragment:${Versions.KTX_FRAGMENT}"
-        const val SWIPE = "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
     }
 
     object KTX {
         const val CORE = "androidx.core:core-ktx:${Versions.CORE}"
-        const val KTX_ACTIVITY = "androidx.activity:activity-ktx:${Versions.KTX_ACTIVITY}"
-        const val KTX_FRAGMENT = "androidx.fragment:fragment-ktx:${Versions.KTX_FRAGMENT}"
         const val KTX_VIEWMODEL = "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.KTX_LIFECYCLE}"
         const val KTX_RUNTIME = "androidx.lifecycle:lifecycle-runtime-ktx:${Versions.KTX_LIFECYCLE}"
     }
@@ -73,10 +60,12 @@ object Libraries {
         const val COMPOSE_UI = "androidx.compose.ui:ui"
         const val COMPOSE_UI_GRAPHICS = "androidx.compose.ui:ui-graphics"
         const val COMPOSE_UI_TOOLING_PREVIEW = "androidx.compose.ui:ui-tooling-preview"
-        const val COMPOSE_UI_MATERIAL3 = "androidx.compose.material3:material3"
+        const val COMPOSE_MATERIAL3 = "androidx.compose.material3:material3"
         const val COMPOSE_UI_TEST_JUNIT4 = "androidx.compose.ui:ui-test-junit4"
         const val COMPOSE_UI_TOOLING = "androidx.compose.ui:ui-tooling"
         const val COMPOSE_UI_TEST_MANIFEST = "androidx.compose.ui:ui-test-manifest"
+        const val COMPOSE_NAVIGATION = "androidx.navigation:navigation-compose:${Versions.COMPOSE_NAVIGATION}"
+        const val COMPOSE_RUNTIME = "androidx.lifecycle:lifecycle-runtime-compose"
     }
 
     object Test {
@@ -93,6 +82,12 @@ object Libraries {
         const val KAPT_HILT = "com.google.dagger:hilt-compiler:${Versions.HILT}"
     }
 
+    object Room {
+        const val KTX_ROOM = "androidx.room:room-ktx:${Versions.ROOM}"
+        const val KAPT_ROOM = "androidx.room:room-compiler:${Versions.ROOM}"
+        const val ROOM = "androidx.room:room-runtime:${Versions.ROOM}"
+    }
+
     object Network {
         //Retrofit
         const val RETROFIT = "com.squareup.retrofit2:retrofit:${Versions.RETROFIT}"
@@ -103,12 +98,7 @@ object Libraries {
         const val OKHTTP_LOGGING_INTERCEPTOR = "com.squareup.okhttp3:logging-interceptor:${Versions.OKHTTP}"
     }
 
-    object Jetpack {
-        const val NAVIGATION = "androidx.navigation:navigation-fragment-ktx:${Versions.NAVIGATION}"
-        const val NAVIGATION_UI = "androidx.navigation:navigation-ui-ktx:${Versions.NAVIGATION}"
-    }
-
     object Glide {
-        const val GLIDE = "com.github.bumptech.glide:glide:${Versions.GLIDE}"
+        const val COMPOSE_GLIDE = "com.github.skydoves:landscapist-glide:${Versions.COMPOSE_GLIDE}"
     }
 }

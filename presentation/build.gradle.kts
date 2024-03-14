@@ -1,6 +1,8 @@
 plugins {
     id ("com.android.application")
     id ("org.jetbrains.kotlin.android")
+    id ("kotlin-kapt")
+    id ("dagger.hilt.android.plugin")
 }
 
 android {
@@ -51,21 +53,52 @@ android {
 }
 
 dependencies {
+    // Module
+    implementation(project(":data"))
+    implementation(project(":domain"))
 
     implementation (Libraries.KTX.CORE)
     implementation(platform(Libraries.Kotlin.KOTLIN))
     implementation (Libraries.KTX.KTX_RUNTIME)
+
+    // Compose
     implementation (Libraries.Compose.COMPOSE_ACTIVITY)
     implementation(platform(Libraries.Compose.COMPOSE_BOM))
     implementation (Libraries.Compose.COMPOSE_UI)
     implementation (Libraries.Compose.COMPOSE_UI_GRAPHICS)
     implementation (Libraries.Compose.COMPOSE_UI_TOOLING_PREVIEW)
-    implementation (Libraries.Compose.COMPOSE_UI_MATERIAL3)
+    implementation (Libraries.Compose.COMPOSE_MATERIAL3)
+    implementation (Libraries.Compose.COMPOSE_NAVIGATION)
+    implementation (Libraries.Compose.COMPOSE_RUNTIME)
+
+    androidTestImplementation(platform(Libraries.Compose.COMPOSE_BOM))
+    debugImplementation (Libraries.Compose.COMPOSE_UI_TOOLING)
+    debugImplementation (Libraries.Compose.COMPOSE_UI_TEST_MANIFEST)
+    androidTestImplementation (Libraries.Compose.COMPOSE_UI_TEST_JUNIT4)
+
+    // Test
     testImplementation (Libraries.Test.JUNIT)
     androidTestImplementation (Libraries.AndroidTest.JUNIT)
     androidTestImplementation (Libraries.AndroidTest.ESPRESSO_CORE)
-    androidTestImplementation(platform(Libraries.Compose.COMPOSE_BOM))
-    androidTestImplementation (Libraries.Compose.COMPOSE_UI_TEST_JUNIT4)
-    debugImplementation (Libraries.Compose.COMPOSE_UI_TOOLING)
-    debugImplementation (Libraries.Compose.COMPOSE_UI_TEST_MANIFEST)
+
+    // Hilt
+    implementation(Libraries.Hilt.HILT)
+    kapt(Libraries.Hilt.KAPT_HILT)
+
+    // Room
+    implementation(Libraries.Room.ROOM)
+    implementation(Libraries.Room.KTX_ROOM)
+    kapt(Libraries.Room.KAPT_ROOM)
+
+    // Retrofit
+    implementation(Libraries.Network.RETROFIT)
+    implementation(Libraries.Network.RETROFIT_CONVERTER)
+
+    // Okhttp
+    implementation(Libraries.Network.OKHTTP)
+    implementation(Libraries.Network.OKHTTP_LOGGING_INTERCEPTOR)
+
+    // Glide
+    implementation(Libraries.Glide.COMPOSE_GLIDE)
 }
+

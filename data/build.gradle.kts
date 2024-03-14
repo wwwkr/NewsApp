@@ -53,10 +53,14 @@ dependencies {
     androidTestImplementation(Libraries.AndroidTest.ESPRESSO_CORE)
     androidTestImplementation(Libraries.AndroidTest.JUNIT)
 
+    // Room
+    implementation(Libraries.Room.ROOM)
+    implementation(Libraries.Room.KTX_ROOM)
+    kapt(Libraries.Room.KAPT_ROOM)
+
     // Hilt
     implementation(Libraries.Hilt.HILT)
     kapt(Libraries.Hilt.KAPT_HILT)
-
 
     // Retrofit
     implementation(Libraries.Network.RETROFIT)
