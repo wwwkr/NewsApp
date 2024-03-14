@@ -151,7 +151,11 @@ fun NewsScreen(viewModel: MainViewModel, onItemClick: () -> Unit, onTextToSpeech
 }
 
 @Composable
-fun ScrapScreen(viewModel: MainViewModel, onItemClick: () -> Unit, onTextToSpeechClick: () -> Unit) {
+fun ScrapScreen(
+    viewModel: MainViewModel,
+    onItemClick: () -> Unit,
+    onTextToSpeechClick: () -> Unit
+) {
 
     LaunchedEffect(Unit) {
         viewModel.getScrapNews()
@@ -243,19 +247,20 @@ fun NewsItem(
             .aspectRatio(1f),
         shape = RoundedCornerShape(12.dp)
     ) {
-        Column {
+        Column(
+            modifier = Modifier
+                .clickable {
+                    viewModel.selectItem = item
+                    onItemClick()
+                },
+        ) {
             // 이미지의 비율을 2로 설정하여 전체 공간의 2/3를 차지하게 합니다.
 
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(2f)
-                    .clickable {
-                        viewModel.selectItem = item
-                        onItemClick()
-                    },
-
-                )
+            )
             {
                 GlideImage(
                     imageModel = item.urlToImage ?: "",
@@ -263,8 +268,9 @@ fun NewsItem(
                     modifier = Modifier.fillMaxSize()
                 )
 
-                Row(modifier = Modifier
-                    .align(Alignment.TopEnd)
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
                 ) {
                     Image(
                         modifier = Modifier
@@ -287,13 +293,13 @@ fun NewsItem(
                             painterResource(id = R.drawable.ic_empty_hart),
                         contentDescription = "스크랩"
                     )
-                    
+
                     Image(
                         modifier = Modifier
                             .absolutePadding(top = 10.dp, right = 10.dp, left = 5.dp)
                             .clickable {
-                            onTextToSpeechClick()
-                        },
+                                onTextToSpeechClick()
+                            },
                         painter = painterResource(id = R.drawable.ic_sound),
                         contentDescription = "TTS"
 
@@ -364,7 +370,7 @@ fun NavigationGraph(
 
                     textToSpeech.stop()
                     navController.popBackStack()
-                    
+
                 }
             )
         }
