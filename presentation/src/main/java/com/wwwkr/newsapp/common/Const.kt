@@ -6,5 +6,5 @@ object Const {
     const val SCRAP = "SCRAP"
 
     const val ROUTE_WEBVIEW = "WEBVIEW"
-
+    const val ROUTE_TTS = "TTS"
 }

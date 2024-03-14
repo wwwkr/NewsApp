@@ -1,18 +1,24 @@
 package com.wwwkr.newsapp.ui
 
 import android.os.Bundle
-import android.util.Log
+import android.speech.tts.TextToSpeech
 import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.absolutePadding
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,11 +29,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -38,6 +44,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.skydoves.landscapist.glide.GlideImage
 import com.wwwkr.domain.model.UiState
@@ -48,12 +55,10 @@ import com.wwwkr.newsapp.common.Const
 import com.wwwkr.newsapp.model.BottomNavItem
 import com.wwwkr.newsapp.ui.theme.NewsAppTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,9 +82,13 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen() {
 
+    val navController = rememberNavController()
     val viewModel = viewModel<MainViewModel>()
 
-    val navController = rememberNavController()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
+
+    val textToSpeech = TextToSpeech()
 
     val items = listOf(
         BottomNavItem.News,
@@ -87,16 +96,25 @@ fun MainScreen() {
     )
 
     Scaffold(
-        bottomBar = { BottomNavigation(items = items, navController = navController) }
+        bottomBar = {
+            if (currentDestination?.route !in listOf(Const.ROUTE_WEBVIEW, Const.ROUTE_TTS)) {
+                BottomNavigation(items = items, navController = navController)
+            }
+
+        }
     ) {
         Box(Modifier.padding(it)) {
-            NavigationGraph(navController = navController, viewModel = viewModel)
+            NavigationGraph(
+                navController = navController,
+                viewModel = viewModel,
+                textToSpeech = textToSpeech
+            )
         }
     }
 }
 
 @Composable
-fun NewsScreen(viewModel: MainViewModel, onItemClickListener: () -> Unit) {
+fun NewsScreen(viewModel: MainViewModel, onItemClick: () -> Unit, onTextToSpeechClick: () -> Unit) {
 
     LaunchedEffect(Unit) {
         viewModel.getNews("kr")
@@ -118,15 +136,22 @@ fun NewsScreen(viewModel: MainViewModel, onItemClickListener: () -> Unit) {
             .background(MaterialTheme.colorScheme.primary)
     ) {
         items(itemList) { item ->
-            NewsItem(item = item, viewModel = viewModel, isScrapView = false) {
-                onItemClickListener()
-            }
+            NewsItem(
+                item = item,
+                viewModel = viewModel,
+                isScrapView = false,
+                onItemClick = {
+                    onItemClick()
+                },
+                onTextToSpeechClick = {
+                    onTextToSpeechClick()
+                })
         }
     }
 }
 
 @Composable
-fun ScrapScreen(viewModel: MainViewModel, onItemClickListener: () -> Unit) {
+fun ScrapScreen(viewModel: MainViewModel, onItemClick: () -> Unit, onTextToSpeechClick: () -> Unit) {
 
     LaunchedEffect(Unit) {
         viewModel.getScrapNews()
@@ -136,7 +161,7 @@ fun ScrapScreen(viewModel: MainViewModel, onItemClickListener: () -> Unit) {
 
     val itemList = if (datas is UiState.Success) {
         (datas as UiState.Success<List<ArticleModel>>).data
-    } else  {
+    } else {
         listOf()
     }
 
@@ -146,18 +171,69 @@ fun ScrapScreen(viewModel: MainViewModel, onItemClickListener: () -> Unit) {
             .background(MaterialTheme.colorScheme.primary)
     ) {
         items(itemList) { item ->
-            NewsItem(item = item, viewModel = viewModel, isScrapView = true) {
-                onItemClickListener()
-            }
+            NewsItem(
+                item = item,
+                viewModel = viewModel,
+                isScrapView = true,
+                onItemClick = {
+                    onItemClick()
+                },
+                onTextToSpeechClick = {
+                    onTextToSpeechClick()
+                }
+            )
         }
 
     }
 
 }
 
+@Composable
+fun TextToSpeechScreen(
+    text: String,
+    onLaunched: () -> Unit,
+    onBackPressed: () -> Unit
+) {
+
+    val onBackPressedCallback = remember {
+        object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                onBackPressed()
+            }
+        }
+    }
+
+    val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+
+    DisposableEffect(key1 = onBackPressedDispatcher) {
+        onBackPressedDispatcher?.addCallback(onBackPressedCallback)
+        onDispose {
+            onBackPressedCallback.remove()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        onLaunched()
+    }
+
+    Text(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp), // 텍스트 내부에 패딩을 추가하여 읽기 쉽게 합니다.
+        text = text,
+        style = MaterialTheme.typography.bodyMedium // 텍스트 스타일을 설정할 수 있습니다.
+    )
+
+}
 
 @Composable
-fun NewsItem(item: ArticleModel, viewModel: MainViewModel, isScrapView: Boolean, onItemClickListener : () -> Unit) {
+fun NewsItem(
+    item: ArticleModel,
+    viewModel: MainViewModel,
+    isScrapView: Boolean,
+    onItemClick: () -> Unit,
+    onTextToSpeechClick: () -> Unit
+) {
 
     Card(
         modifier = Modifier
@@ -175,11 +251,11 @@ fun NewsItem(item: ArticleModel, viewModel: MainViewModel, isScrapView: Boolean,
                     .fillMaxWidth()
                     .weight(2f)
                     .clickable {
-                        viewModel.imageUrl = item.url ?: ""
-                        onItemClickListener()
+                        viewModel.selectItem = item
+                        onItemClick()
                     },
 
-            )
+                )
             {
                 GlideImage(
                     imageModel = item.urlToImage ?: "",
@@ -187,28 +263,44 @@ fun NewsItem(item: ArticleModel, viewModel: MainViewModel, isScrapView: Boolean,
                     modifier = Modifier.fillMaxSize()
                 )
 
-                Image(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(10.dp)
-                        .clickable {
+                Row(modifier = Modifier
+                    .align(Alignment.TopEnd)
+                ) {
+                    Image(
+                        modifier = Modifier
+                            .padding(top = 10.dp)
+                            .clickable {
 
-                            item.isScraped = !item.isScraped
+                                item.isScraped = !item.isScraped
 
-                            viewModel.apply {
-                                when (item.isScraped) {
-                                    true -> insertNews(item = item)
-                                    false -> deleteNews(item = item, isScrapView = isScrapView)
+                                viewModel.apply {
+                                    when (item.isScraped) {
+                                        true -> insertNews(item = item)
+                                        false -> deleteNews(item = item, isScrapView = isScrapView)
+                                    }
                                 }
-                            }
 
+                            },
+                        painter = if (item.isScraped)
+                            painterResource(id = R.drawable.ic_full_hart)
+                        else
+                            painterResource(id = R.drawable.ic_empty_hart),
+                        contentDescription = "스크랩"
+                    )
+                    
+                    Image(
+                        modifier = Modifier
+                            .absolutePadding(top = 10.dp, right = 10.dp, left = 5.dp)
+                            .clickable {
+                            onTextToSpeechClick()
                         },
-                    painter = if (item.isScraped)
-                        painterResource(id = R.drawable.ic_full_hart)
-                    else
-                        painterResource(id = R.drawable.ic_empty_hart),
-                    contentDescription = "스크랩"
-                )
+                        painter = painterResource(id = R.drawable.ic_sound),
+                        contentDescription = "TTS"
+
+                    )
+
+                }
+
             }
 
             // 텍스트의 비율을 1로 설정하여 전체 공간의 1/3를 차지하게 합니다.
@@ -226,20 +318,55 @@ fun NewsItem(item: ArticleModel, viewModel: MainViewModel, isScrapView: Boolean,
 
 
 @Composable
-fun NavigationGraph(navController: NavHostController, viewModel: MainViewModel) {
+fun NavigationGraph(
+    navController: NavHostController,
+    viewModel: MainViewModel,
+    textToSpeech: TextToSpeech
+) {
     NavHost(navController = navController, startDestination = BottomNavItem.News.screenRoute) {
         composable(BottomNavItem.News.screenRoute) {
-            NewsScreen(viewModel = viewModel) {
-                navController.navigate(Const.ROUTE_WEBVIEW)
-            }
+            NewsScreen(
+                viewModel = viewModel,
+                onItemClick = {
+                    navController.navigate(Const.ROUTE_WEBVIEW)
+                },
+                onTextToSpeechClick = {
+                    navController.navigate(Const.ROUTE_TTS)
+                }
+            )
         }
         composable(BottomNavItem.Scrap.screenRoute) {
-            ScrapScreen(viewModel = viewModel) {
-                navController.navigate(Const.ROUTE_WEBVIEW)
-            }
+            ScrapScreen(
+                viewModel = viewModel,
+                onItemClick = {
+                    navController.navigate(Const.ROUTE_WEBVIEW)
+                },
+                onTextToSpeechClick = {
+                    navController.navigate(Const.ROUTE_TTS)
+                }
+            )
         }
         composable(Const.ROUTE_WEBVIEW) {
-            WebViewComponent(url = viewModel.imageUrl)
+            WebViewComponent(url = viewModel.selectItem?.url.toString())
+        }
+
+        composable(Const.ROUTE_TTS) {
+
+            val text = viewModel.selectItem?.description ?: ""
+
+            TextToSpeechScreen(
+                text = text,
+                onLaunched = {
+                    textToSpeech.speak(text, TextToSpeech.QUEUE_ADD, Bundle(), text)
+
+                },
+                onBackPressed = {
+
+                    textToSpeech.stop()
+                    navController.popBackStack()
+                    
+                }
+            )
         }
     }
 }
