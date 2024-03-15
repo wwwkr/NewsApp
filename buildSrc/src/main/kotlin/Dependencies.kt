@@ -33,8 +33,14 @@ object Versions {
     // Room
     const val ROOM = "2.5.2"
 
-    // Glide
+    // Compose Glide
     const val COMPOSE_GLIDE = "1.3.7"
+
+    // Kotest
+    const val KOTEST = "5.7.2"
+
+    // Mockk
+    const val MOCKK = "1.13.8"
 }
 
 
@@ -70,6 +76,10 @@ object Libraries {
 
     object Test {
         const val JUNIT = "junit:junit:${Versions.UNIT_TEST_JUNIT}"
+        const val KOTEST = "io.kotest:kotest-runner-junit5:${Versions.KOTEST}"
+        const val KOTEST_ASSERTIONS = "io.kotest:kotest-assertions-core-jvm:${Versions.KOTEST}"
+        const val MOCKK = "io.mockk:mockk:${Versions.MOCKK}"
+        const val KOCKK_ANDROID = "io.mockk:mockk-android:${Versions.MOCKK}"
     }
 
     object AndroidTest {

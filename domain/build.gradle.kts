@@ -45,11 +45,14 @@ dependencies {
 
     // TEST
     testImplementation(Libraries.Test.JUNIT)
+    testImplementation(Libraries.Test.KOTEST)
+    testImplementation(Libraries.Test.KOTEST_ASSERTIONS)
+    testImplementation(Libraries.Test.MOCKK)
+    androidTestImplementation(Libraries.Test.KOCKK_ANDROID)
 
     // AndroidTest
     androidTestImplementation(Libraries.AndroidTest.ESPRESSO_CORE)
     androidTestImplementation(Libraries.AndroidTest.JUNIT)
-
     // Hilt
     implementation(Libraries.Hilt.HILT)
     kapt(Libraries.Hilt.KAPT_HILT)
