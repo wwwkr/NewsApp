@@ -3,6 +3,7 @@ package com.wwwkr.newsapp.ui
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
@@ -83,13 +84,8 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        init()
     }
 
-    private fun init() {
-        viewModel.getNews("kr")
-        viewModel.getScrapNews()
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -129,6 +125,10 @@ fun MainScreen(viewModel: MainViewModel) {
 @Composable
 fun NewsScreen(viewModel: MainViewModel, onItemClick: () -> Unit, onTextToSpeechClick: () -> Unit) {
 
+    LaunchedEffect(Unit) {
+        viewModel.getNews("kr")
+    }
+
     val datas by viewModel.newsStateFlow.collectAsStateWithLifecycle()
 
     val itemList by if (datas is UiState.Success) {
@@ -165,6 +165,10 @@ fun ScrapScreen(
     onItemClick: () -> Unit,
     onTextToSpeechClick: () -> Unit
 ) {
+
+    LaunchedEffect(Unit) {
+        viewModel.getScrapNews()
+    }
 
     val datas by viewModel.scrapNewsStateFlow.collectAsStateWithLifecycle()
 
@@ -403,6 +407,7 @@ fun NavigationGraph(
                     }
                 })
             }
+
             TextToSpeechScreen(
                 text = annotatedStringState.value,
                 onLaunched = {

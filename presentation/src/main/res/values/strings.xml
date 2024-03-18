@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">NewsApp</string>
+    <string name="app_name">뉴스</string>
 
     <string name="positive">예</string>
     <string name="negative">아니오</string>

@@ -42,7 +42,7 @@ class GetNewsUseCase @Inject constructor(private val newsRepository: NewsReposit
             }.catch {
                 _getNewsStateFlow.value = UiState.Error(it.message.toString())
             }.collect {
-                _getNewsStateFlow.value = UiState.Success(it.articles?.toList() ?: listOf())
+                _getNewsStateFlow.value = UiState.Success(it.articles ?: listOf())
             }
     }
 
