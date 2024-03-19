@@ -10,5 +10,6 @@
 
     <string name="txt_news">뉴스</string>
     <string name="txt_scrap">스크랩</string>
+    <string name="txt_tts">TTS</string>
 
 </resources>
