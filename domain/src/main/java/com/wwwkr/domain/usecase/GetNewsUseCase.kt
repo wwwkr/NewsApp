@@ -6,6 +6,7 @@ import com.wwwkr.domain.repository.NewsRepository
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
@@ -41,8 +42,8 @@ class GetNewsUseCase @Inject constructor(private val newsRepository: NewsReposit
                 _getNewsStateFlow.value = UiState.Loading
             }.catch {
                 _getNewsStateFlow.value = UiState.Error(it.message.toString())
-            }.collect {
-                _getNewsStateFlow.value = UiState.Success(it.articles?.toList() ?: listOf())
+            }.collectLatest {
+                _getNewsStateFlow.value = UiState.Success(it.articles ?: listOf())
             }
     }
 

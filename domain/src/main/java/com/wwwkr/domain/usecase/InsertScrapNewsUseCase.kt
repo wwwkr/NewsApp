@@ -21,13 +21,12 @@ class InsertScrapNewsUseCase @Inject constructor(private val newsRepository: New
 
     suspend operator fun invoke(item: ArticleModel) {
         newsRepository.insertNews(item = item)
-            .collect {
+            .collectLatest {
                 val currentState = _getNewsStateFlow.value
                 if (currentState is UiState.Success) {
                     val currentData = currentState.data
                     val updatedArticles = currentData.map { newsItem ->
                         if (newsItem.title == item.title) {
-                            Log.e("TAG","CHECK TITLE : ${item.title} ${item.isScraped}")
                             // 변경된 아이템과 동일한 아이템을 찾아서 스크랩 상태를 변경합니다.
                             item.copy(isScraped = !item.isScraped)
                         } else {

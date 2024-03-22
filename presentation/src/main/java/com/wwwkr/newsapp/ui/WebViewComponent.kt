@@ -13,7 +13,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 @Composable
 fun WebViewComponent(url: String) {
 
-    Log.e("TAG","CHECK url $url")
     AndroidView(
         factory = { context ->
             WebView(context).apply {

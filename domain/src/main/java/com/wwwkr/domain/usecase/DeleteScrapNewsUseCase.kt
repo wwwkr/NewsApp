@@ -3,6 +3,7 @@ package com.wwwkr.domain.usecase
 import com.wwwkr.domain.model.ArticleModel
 import com.wwwkr.domain.model.UiState
 import com.wwwkr.domain.repository.NewsRepository
+import kotlinx.coroutines.flow.collectLatest
 import javax.inject.Inject
 
 class DeleteScrapNewsUseCase @Inject constructor(private val newsRepository: NewsRepository) {
@@ -15,7 +16,7 @@ class DeleteScrapNewsUseCase @Inject constructor(private val newsRepository: New
         isScrapView: Boolean
     ) {
         newsRepository.deleteNews(title = item.title.toString())
-            .collect {
+            .collectLatest {
 
                 if(isScrapView) {
                     val currentState = _getScrapNewsStateFlow.value

@@ -8,9 +8,6 @@ import com.wwwkr.domain.usecase.GetNewsUseCase
 import com.wwwkr.domain.usecase.GetScrapNewsUseCase
 import com.wwwkr.domain.usecase.InsertScrapNewsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

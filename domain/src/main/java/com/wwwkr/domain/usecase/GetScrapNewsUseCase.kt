@@ -1,5 +1,6 @@
 package com.wwwkr.domain.usecase
 
+import android.util.Log
 import com.wwwkr.domain.model.UiState
 import com.wwwkr.domain.repository.NewsRepository
 import kotlinx.coroutines.flow.asStateFlow
