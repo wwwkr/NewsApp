@@ -1,11 +1,15 @@
 package com.wwwkr.newsapp.ui
 
+import android.content.Context
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -36,7 +40,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -52,6 +65,7 @@ import com.wwwkr.domain.model.ArticleModel
 import com.wwwkr.newsapp.MainViewModel
 import com.wwwkr.newsapp.R
 import com.wwwkr.newsapp.common.Const
+import com.wwwkr.newsapp.common.Utils
 import com.wwwkr.newsapp.model.BottomNavItem
 import com.wwwkr.newsapp.ui.theme.NewsAppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -59,7 +73,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-
+    private val viewModel by viewModels<MainViewModel>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -69,7 +83,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MainScreen()
+                    MainScreen(viewModel = viewModel)
                 }
             }
         }
@@ -80,15 +94,15 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen() {
+fun MainScreen(viewModel: MainViewModel) {
 
     val navController = rememberNavController()
-    val viewModel = viewModel<MainViewModel>()
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
     val textToSpeech = TextToSpeech()
+    val context = LocalContext.current
 
     val items = listOf(
         BottomNavItem.News,
@@ -97,7 +111,7 @@ fun MainScreen() {
 
     Scaffold(
         bottomBar = {
-            if (currentDestination?.route !in listOf(Const.ROUTE_WEBVIEW, Const.ROUTE_TTS)) {
+            if (currentDestination?.route !in listOf(Const.ROUTE_TTS)) {
                 BottomNavigation(items = items, navController = navController)
             }
 
@@ -107,7 +121,8 @@ fun MainScreen() {
             NavigationGraph(
                 navController = navController,
                 viewModel = viewModel,
-                textToSpeech = textToSpeech
+                textToSpeech = textToSpeech,
+                context = context
             )
         }
     }
@@ -194,7 +209,7 @@ fun ScrapScreen(
 
 @Composable
 fun TextToSpeechScreen(
-    text: String,
+    text: AnnotatedString,
     onLaunched: () -> Unit,
     onBackPressed: () -> Unit
 ) {
@@ -276,7 +291,7 @@ fun NewsItem(
                         modifier = Modifier
                             .padding(top = 10.dp)
                             .clickable {
-
+                                viewModel.selectItem = item
                                 item.isScraped = !item.isScraped
 
                                 viewModel.apply {
@@ -291,17 +306,18 @@ fun NewsItem(
                             painterResource(id = R.drawable.ic_full_hart)
                         else
                             painterResource(id = R.drawable.ic_empty_hart),
-                        contentDescription = "스크랩"
+                        contentDescription = stringResource(id = R.string.txt_scrap)
                     )
 
                     Image(
                         modifier = Modifier
                             .absolutePadding(top = 10.dp, right = 10.dp, left = 5.dp)
                             .clickable {
+                                viewModel.selectItem = item
                                 onTextToSpeechClick()
                             },
                         painter = painterResource(id = R.drawable.ic_sound),
-                        contentDescription = "TTS"
+                        contentDescription = stringResource(id = R.string.txt_tts)
 
                     )
 
@@ -327,14 +343,16 @@ fun NewsItem(
 fun NavigationGraph(
     navController: NavHostController,
     viewModel: MainViewModel,
-    textToSpeech: TextToSpeech
+    textToSpeech: TextToSpeech,
+    context: Context
 ) {
+
     NavHost(navController = navController, startDestination = BottomNavItem.News.screenRoute) {
         composable(BottomNavItem.News.screenRoute) {
             NewsScreen(
                 viewModel = viewModel,
                 onItemClick = {
-                    navController.navigate(Const.ROUTE_WEBVIEW)
+                    Utils.openInBrowser(url = viewModel.selectItem?.url.toString(), context = context)
                 },
                 onTextToSpeechClick = {
                     navController.navigate(Const.ROUTE_TTS)
@@ -345,26 +363,58 @@ fun NavigationGraph(
             ScrapScreen(
                 viewModel = viewModel,
                 onItemClick = {
-                    navController.navigate(Const.ROUTE_WEBVIEW)
+                    Utils.openInBrowser(url = viewModel.selectItem?.url.toString(), context = context)
                 },
                 onTextToSpeechClick = {
                     navController.navigate(Const.ROUTE_TTS)
                 }
             )
         }
-        composable(Const.ROUTE_WEBVIEW) {
-            WebViewComponent(url = viewModel.selectItem?.url.toString())
-        }
 
         composable(Const.ROUTE_TTS) {
 
             val text = viewModel.selectItem?.description ?: ""
 
-            TextToSpeechScreen(
-                text = text,
-                onLaunched = {
-                    textToSpeech.speak(text, TextToSpeech.QUEUE_ADD, Bundle(), text)
+            val annotatedStringState = remember {
+                mutableStateOf(
+                    buildAnnotatedString {
+                        withStyle(style = SpanStyle(color = Color.Gray)) {
+                            append(text)
+                        }
+                    }
+                )
+            }
 
+            LaunchedEffect(Unit) {
+                textToSpeech.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+                    override fun onStart(s: String) {}
+
+                    override fun onDone(s: String) {}
+
+                    override fun onError(s: String) {}
+
+                    override fun onRangeStart(utteranceId: String?, start: Int, end: Int, frame: Int) {
+                        super.onRangeStart(utteranceId, start, end, frame)
+
+                        annotatedStringState.value = buildAnnotatedString {
+                            withStyle(style = SpanStyle(color = Color.Gray)) {
+                                append(text)
+                            }
+
+                            addStyle(
+                                style = SpanStyle(color = Color.Black, textDecoration = TextDecoration.Underline, fontWeight = FontWeight.Bold),
+                                start = start,
+                                end = end
+                            )
+                        }
+                    }
+                })
+            }
+
+            TextToSpeechScreen(
+                text = annotatedStringState.value,
+                onLaunched = {
+                    textToSpeech.speak(annotatedStringState.value, TextToSpeech.QUEUE_ADD, Bundle(), annotatedStringState.value.text)
                 },
                 onBackPressed = {
 
@@ -381,7 +431,10 @@ fun NavigationGraph(
 @Preview(showBackground = true)
 @Composable
 fun MainScreenPreview() {
+
+    val viewModel = viewModel<MainViewModel>()
+
     NewsAppTheme {
-        MainScreen()
+        MainScreen(viewModel = viewModel)
     }
 }

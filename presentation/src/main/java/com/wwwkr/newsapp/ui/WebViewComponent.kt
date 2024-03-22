@@ -1,7 +1,9 @@
 package com.wwwkr.newsapp.ui
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.webkit.WebResourceRequest
+import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.runtime.Composable
@@ -17,6 +19,7 @@ fun WebViewComponent(url: String) {
                 settings.javaScriptEnabled = true
                 webViewClient = CustomWebViewClient()
 
+                settings.mixedContentMode = WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE
                 settings.loadWithOverviewMode = true
                 settings.useWideViewPort = true
                 settings.setSupportZoom(true)
