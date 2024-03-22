@@ -32,6 +32,10 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
+
+    tasks.withType<Test> {
+        useJUnitPlatform()
+    }
 }
 
 dependencies {
@@ -53,6 +57,7 @@ dependencies {
     // AndroidTest
     androidTestImplementation(Libraries.AndroidTest.ESPRESSO_CORE)
     androidTestImplementation(Libraries.AndroidTest.JUNIT)
+
     // Hilt
     implementation(Libraries.Hilt.HILT)
     kapt(Libraries.Hilt.KAPT_HILT)
