@@ -21,7 +21,7 @@ class InsertScrapNewsUseCase @Inject constructor(private val newsRepository: New
 
     suspend operator fun invoke(item: ArticleModel) {
         newsRepository.insertNews(item = item)
-            .collect {
+            .collectLatest {
                 val currentState = _getNewsStateFlow.value
                 if (currentState is UiState.Success) {
                     val currentData = currentState.data
