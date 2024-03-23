@@ -18,7 +18,7 @@ class GetNewsUseCase @Inject constructor(private val newsRepository: NewsReposit
     val getNewsStateFlow = _getNewsStateFlow.asStateFlow()
 
     @OptIn(FlowPreview::class)
-    suspend operator fun invoke(country: String){
+    suspend operator fun invoke(country: String) {
         newsRepository.getNews(
             NewsParamModel(
                 country = country,
@@ -27,13 +27,14 @@ class GetNewsUseCase @Inject constructor(private val newsRepository: NewsReposit
         ).flatMapConcat { news ->
             newsRepository.selectNews().map { savedNews ->
                 // news.articles 리스트와 savedNews 리스트의 content를 비교하여 isScraped를 true로 설정합니다.
-                news.articles?.forEach { article ->
-                    savedNews.forEach { savedArticle ->
-                        if (article.title == savedArticle.title) {
-                            article.isScraped = true
+                news.articles?.filter { it.description?.isNotEmpty() == true && it.urlToImage?.isNotEmpty() == true }
+                    ?.forEach { article ->
+                        savedNews.forEach { savedArticle ->
+                            if (article.title == savedArticle.title) {
+                                article.isScraped = true
+                            }
                         }
                     }
-                }
                 // 변경된 news를 반환합니다.
                 news
             }
