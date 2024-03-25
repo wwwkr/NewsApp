@@ -64,8 +64,8 @@ import com.wwwkr.domain.model.UiState
 import com.wwwkr.domain.model.ArticleModel
 import com.wwwkr.newsapp.MainViewModel
 import com.wwwkr.newsapp.R
-import com.wwwkr.newsapp.common.Const
-import com.wwwkr.newsapp.common.Utils
+import com.wwwkr.domain.common.Const
+import com.wwwkr.domain.common.Utils
 import com.wwwkr.newsapp.model.BottomNavItem
 import com.wwwkr.newsapp.ui.theme.NewsAppTheme
 import dagger.hilt.android.AndroidEntryPoint

@@ -1,7 +1,7 @@
 package com.wwwkr.newsapp.model
 
 import com.wwwkr.newsapp.R
-import com.wwwkr.newsapp.common.Const
+import com.wwwkr.domain.common.Const
 
 sealed class BottomNavItem(
     val title: Int, val icon: Int, val screenRoute: String

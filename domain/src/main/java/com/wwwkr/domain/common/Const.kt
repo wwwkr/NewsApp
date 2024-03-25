@@ -1,4 +1,4 @@
-package com.wwwkr.newsapp.common
+package com.wwwkr.domain.common
 
 object Const {
 
@@ -7,4 +7,6 @@ object Const {
 
     const val ROUTE_WEBVIEW = "WEBVIEW"
     const val ROUTE_TTS = "TTS"
+
+    const val API_KEY = "06b985d51c424ae8976546bc63c03cce"
 }
