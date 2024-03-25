@@ -1,4 +1,4 @@
-package com.wwwkr.newsapp.common
+package com.wwwkr.domain.common
 
 import android.content.Context
 import android.content.Intent

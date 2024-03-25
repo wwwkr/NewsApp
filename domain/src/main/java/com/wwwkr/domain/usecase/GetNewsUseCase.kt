@@ -1,5 +1,6 @@
 package com.wwwkr.domain.usecase
 
+import com.wwwkr.domain.common.Const
 import com.wwwkr.domain.model.NewsParamModel
 import com.wwwkr.domain.model.UiState
 import com.wwwkr.domain.repository.NewsRepository
@@ -22,7 +23,7 @@ class GetNewsUseCase @Inject constructor(private val newsRepository: NewsReposit
         newsRepository.getNews(
             NewsParamModel(
                 country = country,
-                apiKey = "06b985d51c424ae8976546bc63c03cce"
+                apiKey = Const.API_KEY
             )
         ).flatMapConcat { news ->
             newsRepository.selectNews().map { savedNews ->
