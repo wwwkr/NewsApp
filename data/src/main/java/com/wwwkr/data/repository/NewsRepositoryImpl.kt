@@ -9,11 +9,8 @@ import com.wwwkr.data.extensions.toNewsResponseModel
 import com.wwwkr.domain.model.ArticleModel
 import com.wwwkr.domain.model.NewsParamModel
 import com.wwwkr.domain.model.NewsResponseModel
-import com.wwwkr.domain.model.UiState
 import com.wwwkr.domain.repository.NewsRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
@@ -48,7 +45,13 @@ class NewsRepositoryImpl @Inject constructor(
     }
 
     override fun deleteNews(title: String): Flow<Unit> = flow {
-        newsLocalDataSource.deleteNews(title = title).collect() {
+        newsLocalDataSource.deleteNews(title = title).collect {
+            emit(it)
+        }
+    }
+
+    override fun updateNews(title: String, memo: String): Flow<Unit> = flow {
+        newsLocalDataSource.updateNews(title = title, memo = memo).collect {
             emit(it)
         }
     }

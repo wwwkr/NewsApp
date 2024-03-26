@@ -27,4 +27,8 @@ class NewsLocalDataSourceImpl @Inject constructor(private val database: AppDatab
       emit(database.NewsDao().deleteItem(title = title))
    }
 
+   override suspend fun updateNews(title: String, memo: String) = flow {
+      emit(database.NewsDao().updateMemo(title = title, memo = memo))
+   }
+
 }

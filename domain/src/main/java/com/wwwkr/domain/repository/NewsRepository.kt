@@ -19,4 +19,6 @@ interface NewsRepository {
     fun selectNews(): Flow<List<ArticleModel>>
 
     fun deleteNews(title: String): Flow<Unit>
+
+    fun updateNews(title: String, memo: String): Flow<Unit>
 }

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
@@ -26,18 +27,21 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -59,6 +63,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.google.gson.Gson
 import com.skydoves.landscapist.glide.GlideImage
 import com.wwwkr.domain.model.UiState
 import com.wwwkr.domain.model.ArticleModel
@@ -66,6 +71,7 @@ import com.wwwkr.newsapp.MainViewModel
 import com.wwwkr.newsapp.R
 import com.wwwkr.domain.common.Const
 import com.wwwkr.domain.common.Utils
+import com.wwwkr.newsapp.extenstions.toast
 import com.wwwkr.newsapp.model.BottomNavItem
 import com.wwwkr.newsapp.ui.theme.NewsAppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -111,7 +117,7 @@ fun MainScreen(viewModel: MainViewModel) {
 
     Scaffold(
         bottomBar = {
-            if (currentDestination?.route !in listOf(Const.ROUTE_TTS)) {
+            if (currentDestination?.route !in listOf(Const.ROUTE_TTS, Const.ROUTE_MEMO)) {
                 BottomNavigation(items = items, navController = navController)
             }
 
@@ -129,7 +135,12 @@ fun MainScreen(viewModel: MainViewModel) {
 }
 
 @Composable
-fun NewsScreen(viewModel: MainViewModel, onItemClick: () -> Unit, onTextToSpeechClick: () -> Unit) {
+fun NewsScreen(
+    viewModel: MainViewModel,
+    onItemClick: () -> Unit,
+    onTextToSpeechClick: () -> Unit,
+    onMemoClick: () -> Unit
+) {
 
     LaunchedEffect(Unit) {
         viewModel.getNews("kr")
@@ -160,6 +171,9 @@ fun NewsScreen(viewModel: MainViewModel, onItemClick: () -> Unit, onTextToSpeech
                 },
                 onTextToSpeechClick = {
                     onTextToSpeechClick()
+                },
+                onMemoClick = {
+                    onMemoClick()
                 })
         }
     }
@@ -169,7 +183,8 @@ fun NewsScreen(viewModel: MainViewModel, onItemClick: () -> Unit, onTextToSpeech
 fun ScrapScreen(
     viewModel: MainViewModel,
     onItemClick: () -> Unit,
-    onTextToSpeechClick: () -> Unit
+    onTextToSpeechClick: () -> Unit,
+    onMemoClick: () -> Unit
 ) {
 
     LaunchedEffect(Unit) {
@@ -199,6 +214,9 @@ fun ScrapScreen(
                 },
                 onTextToSpeechClick = {
                     onTextToSpeechClick()
+                },
+                onMemoClick = {
+                    onMemoClick()
                 }
             )
         }
@@ -251,7 +269,8 @@ fun NewsItem(
     viewModel: MainViewModel,
     isScrapView: Boolean,
     onItemClick: () -> Unit,
-    onTextToSpeechClick: () -> Unit
+    onTextToSpeechClick: () -> Unit,
+    onMemoClick: () -> Unit
 ) {
 
     Card(
@@ -311,7 +330,7 @@ fun NewsItem(
 
                     Image(
                         modifier = Modifier
-                            .absolutePadding(top = 10.dp, right = 10.dp, left = 5.dp)
+                            .absolutePadding(top = 10.dp, left = 5.dp)
                             .clickable {
                                 viewModel.selectItem = item
                                 onTextToSpeechClick()
@@ -320,6 +339,21 @@ fun NewsItem(
                         contentDescription = stringResource(id = R.string.txt_tts)
 
                     )
+
+                    if(isScrapView) {
+                        Image(
+                            modifier = Modifier
+                                .absolutePadding(top = 10.dp, right = 10.dp, left = 5.dp)
+                                .clickable {
+                                    viewModel.selectItem = item
+                                    onMemoClick()
+                                },
+                            painter = painterResource(id = R.drawable.ic_memo),
+                            contentDescription = stringResource(id = R.string.txt_memo)
+
+                        )
+                    }
+
 
                 }
 
@@ -336,6 +370,44 @@ fun NewsItem(
             )
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MemoScreen(
+    memoString: String,
+    onBackPressed: (String) -> Unit
+) {
+    var memo by remember {
+        mutableStateOf(memoString)
+    }
+
+    val onBackPressedCallback = remember {
+        object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                onBackPressed(memo)
+            }
+        }
+    }
+
+    val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+
+    DisposableEffect(key1 = onBackPressedDispatcher) {
+        onBackPressedDispatcher?.addCallback(onBackPressedCallback)
+        onDispose {
+            onBackPressedCallback.remove()
+        }
+    }
+
+    TextField(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp),
+        value = memo,
+        onValueChange = {
+            memo = it
+        })
+
 }
 
 
@@ -356,6 +428,9 @@ fun NavigationGraph(
                 },
                 onTextToSpeechClick = {
                     navController.navigate(Const.ROUTE_TTS)
+                },
+                onMemoClick = {
+                    navController.navigate(Const.ROUTE_MEMO)
                 }
             )
         }
@@ -367,6 +442,8 @@ fun NavigationGraph(
                 },
                 onTextToSpeechClick = {
                     navController.navigate(Const.ROUTE_TTS)
+                }, onMemoClick = {
+                    navController.navigate(Const.ROUTE_MEMO)
                 }
             )
         }
@@ -424,6 +501,30 @@ fun NavigationGraph(
                 }
             )
         }
+
+        composable(Const.ROUTE_MEMO) {
+
+            val item = viewModel.selectItem
+
+            val title by remember {
+                mutableStateOf(item?.title ?: "")
+            }
+
+            val memo by remember {
+                mutableStateOf(item?.memo ?: "")
+            }
+
+            MemoScreen (
+                memoString = memo,
+                onBackPressed = { editMemo ->
+
+                    viewModel.updateMemo(title = title, memo = editMemo)
+                    navController.popBackStack()
+                    context.toast(context.getString(R.string.toast_memo_message))
+
+            })
+        }
+
     }
 }
 

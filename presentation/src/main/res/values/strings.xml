@@ -11,5 +11,8 @@
     <string name="txt_news">뉴스</string>
     <string name="txt_scrap">스크랩</string>
     <string name="txt_tts">TTS</string>
+    <string name="txt_memo">메모</string>
+
+    <string name="toast_memo_message">메모가 수정 됐습니다.</string>
 
 </resources>
