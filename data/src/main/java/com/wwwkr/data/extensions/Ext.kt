@@ -42,7 +42,8 @@ fun ArticleModel.toNewsEntity(): NewsEntity =
         title = title,
         url = url,
         urlToImage = urlToImage,
-        isScraped = isScraped
+        isScraped = isScraped,
+        memo = memo
     )
 
 fun NewsEntity.toArticleModel(): ArticleModel =
@@ -55,5 +56,6 @@ fun NewsEntity.toArticleModel(): ArticleModel =
         title = title,
         url = url,
         urlToImage = urlToImage,
-        isScraped = isScraped
+        isScraped = isScraped,
+        memo = memo
     )

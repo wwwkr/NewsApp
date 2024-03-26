@@ -15,7 +15,8 @@ data class ArticleModel(
     val title: String? = "",
     val url: String? = "",
     val urlToImage: String? = "",
-    var isScraped: Boolean = false
+    var isScraped: Boolean = false,
+    val memo: String = ""
 )
 
 data class SourceModel(

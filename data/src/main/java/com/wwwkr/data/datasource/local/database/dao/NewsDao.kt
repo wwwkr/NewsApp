@@ -18,4 +18,7 @@ interface NewsDao {
 
     @Query("delete from News where title = :title")
     suspend fun deleteItem(title: String)
+
+    @Query("update news set memo = :memo where title = :title")
+    suspend fun updateMemo(title: String, memo: String)
 }

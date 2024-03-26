@@ -14,5 +14,6 @@ data class NewsEntity(
     val title: String?,
     val url: String?,
     val urlToImage: String?,
-    var isScraped: Boolean = true
+    var isScraped: Boolean = true,
+    var memo: String = ""
 )
