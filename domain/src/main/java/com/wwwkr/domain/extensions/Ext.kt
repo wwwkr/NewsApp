@@ -8,3 +8,10 @@ fun<T> MutableStateFlow<UiState<List<T>>>.toDataList(): List<T> {
         (value as UiState.Success<List<T>>).data
     } else listOf()
 }
+
+fun <T> UiState<List<T>>.toDataList(): List<T> {
+    return when (this) {
+        is UiState.Success -> this.data
+        else -> emptyList()
+    }
+}

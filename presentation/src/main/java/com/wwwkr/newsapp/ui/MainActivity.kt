@@ -71,6 +71,7 @@ import com.wwwkr.newsapp.MainViewModel
 import com.wwwkr.newsapp.R
 import com.wwwkr.domain.common.Const
 import com.wwwkr.domain.common.Utils
+import com.wwwkr.domain.extensions.toDataList
 import com.wwwkr.newsapp.extenstions.toast
 import com.wwwkr.newsapp.model.BottomNavItem
 import com.wwwkr.newsapp.ui.theme.NewsAppTheme
@@ -148,12 +149,8 @@ fun NewsScreen(
 
     val datas by viewModel.newsStateFlow.collectAsStateWithLifecycle()
 
-    val itemList by if (datas is UiState.Success) {
-        remember {
-            mutableStateOf((datas as UiState.Success<List<ArticleModel>>).data)
-        }
-    } else remember {
-        mutableStateOf(listOf())
+    val itemList by remember {
+        mutableStateOf(datas.toDataList())
     }
 
     LazyColumn(
