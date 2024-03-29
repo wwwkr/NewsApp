@@ -4,8 +4,6 @@ import android.content.Context
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
-import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
@@ -17,17 +15,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.absolutePadding
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -63,15 +58,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.google.gson.Gson
 import com.skydoves.landscapist.glide.GlideImage
-import com.wwwkr.domain.model.UiState
-import com.wwwkr.domain.model.ArticleModel
-import com.wwwkr.newsapp.MainViewModel
-import com.wwwkr.newsapp.R
 import com.wwwkr.domain.common.Const
 import com.wwwkr.domain.common.Utils
-import com.wwwkr.domain.extensions.toDataList
+import com.wwwkr.domain.model.ArticleModel
+import com.wwwkr.domain.model.UiState
+import com.wwwkr.newsapp.MainViewModel
+import com.wwwkr.newsapp.R
+import com.wwwkr.newsapp.extenstions.toStringRes
 import com.wwwkr.newsapp.extenstions.toast
 import com.wwwkr.newsapp.model.BottomNavItem
 import com.wwwkr.newsapp.ui.theme.NewsAppTheme
@@ -147,35 +141,46 @@ fun NewsScreen(
         viewModel.getNews("kr")
     }
 
-    val datas by viewModel.newsStateFlow.collectAsStateWithLifecycle()
+    val newsState by viewModel.newsStateFlow.collectAsStateWithLifecycle()
 
-    val itemList by if (datas is UiState.Success) {
-        remember {
-            mutableStateOf((datas as UiState.Success<List<ArticleModel>>).data)
+    when (val state = newsState) {
+        is UiState.Success -> {
+            val data = state.data
+
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.primary)
+            ) {
+                items(data) { item ->
+                    NewsItem(
+                        item = item,
+                        viewModel = viewModel,
+                        isScrapView = false,
+                        onItemClick = {
+                            onItemClick()
+                        },
+                        onTextToSpeechClick = {
+                            onTextToSpeechClick()
+                        },
+                        onMemoClick = {
+                            onMemoClick()
+                        })
+                }
+            }
         }
-    } else remember {
-        mutableStateOf(listOf())
-    }
+        is UiState.Loading -> {
+            toast(R.string.loading.toStringRes())
+        }
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.primary)
-    ) {
-        items(itemList) { item ->
-            NewsItem(
-                item = item,
-                viewModel = viewModel,
-                isScrapView = false,
-                onItemClick = {
-                    onItemClick()
-                },
-                onTextToSpeechClick = {
-                    onTextToSpeechClick()
-                },
-                onMemoClick = {
-                    onMemoClick()
-                })
+        is UiState.Error -> {
+            val errorMessage = state.errorMessage
+
+            toast(errorMessage)
+        }
+
+        else -> {
+
         }
     }
 }
@@ -521,7 +526,7 @@ fun NavigationGraph(
 
                     viewModel.updateMemo(title = title, memo = editMemo)
                     navController.popBackStack()
-                    context.toast(context.getString(R.string.toast_memo_message))
+                    toast(context.getString(R.string.toast_memo_message))
 
             })
         }

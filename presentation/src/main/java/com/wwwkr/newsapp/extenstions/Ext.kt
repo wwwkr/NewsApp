@@ -2,13 +2,14 @@ package com.wwwkr.newsapp.extenstions
 
 import android.content.Context
 import android.widget.Toast
+import com.wwwkr.newsapp.NewsApplication
 
 var toast: Toast? = null
 
-fun Context.toast(msg: String) {
+fun toast(msg: String) {
 
     if(toast == null) {
-        toast = Toast(this)
+        toast = Toast(NewsApplication.instance.applicationContext)
     }else {
         toast?.cancel()
     }
@@ -20,3 +21,6 @@ fun Context.toast(msg: String) {
     }
 
 }
+
+
+fun Int.toStringRes(): String = NewsApplication.instance.applicationContext.getString(this)
