@@ -521,7 +521,7 @@ fun NavigationGraph(
 
                     viewModel.updateMemo(title = title, memo = editMemo)
                     navController.popBackStack()
-                    context.toast(context.getString(R.string.toast_memo_message))
+                    toast(context.getString(R.string.toast_memo_message))
 
             })
         }
