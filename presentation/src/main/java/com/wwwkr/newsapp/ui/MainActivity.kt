@@ -149,8 +149,12 @@ fun NewsScreen(
 
     val datas by viewModel.newsStateFlow.collectAsStateWithLifecycle()
 
-    val itemList by remember {
-        mutableStateOf(datas.toDataList())
+    val itemList by if (datas is UiState.Success) {
+        remember {
+            mutableStateOf((datas as UiState.Success<List<ArticleModel>>).data)
+        }
+    } else remember {
+        mutableStateOf(listOf())
     }
 
     LazyColumn(
