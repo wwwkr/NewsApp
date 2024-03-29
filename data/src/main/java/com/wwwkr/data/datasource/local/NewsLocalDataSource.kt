@@ -14,7 +14,6 @@ interface NewsLocalDataSource {
     suspend fun insertNews(item: NewsEntity): Flow<Unit>
     suspend fun selectNews(): Flow<List<NewsEntity>>
     suspend fun deleteNews(title: String): Flow<Unit>
-
     suspend fun updateNews(title: String, memo: String): Flow<Unit>
 
 }

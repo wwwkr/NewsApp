@@ -14,5 +14,6 @@
     <string name="txt_memo">메모</string>
 
     <string name="toast_memo_message">메모가 수정 됐습니다.</string>
+    <string name="toast_tts_fail">TTS 객체 초기화 중 문제가 발생했습니다.</string>
 
 </resources>
