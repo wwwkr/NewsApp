@@ -57,6 +57,7 @@ dependencies {
     implementation(project(":data"))
     implementation(project(":domain"))
 
+    implementation(Libraries.AndroidX.APP_COMPAT)
     implementation (Libraries.KTX.CORE)
     implementation(platform(Libraries.Kotlin.KOTLIN))
     implementation (Libraries.KTX.KTX_RUNTIME)

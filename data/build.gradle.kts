@@ -41,7 +41,7 @@ dependencies {
 
     // AndroidX
     implementation(Libraries.AndroidX.APP_COMPAT)
-    implementation(Libraries.AndroidX.MATERIAL)
+    implementation(Libraries.Material.MATERIAL)
 
     // KTX
     implementation(Libraries.KTX.CORE)
