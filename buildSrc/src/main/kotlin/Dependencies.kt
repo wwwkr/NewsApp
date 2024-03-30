@@ -51,6 +51,9 @@ object Libraries {
 
     object AndroidX {
         const val APP_COMPAT = "androidx.appcompat:appcompat:${Versions.APP_COMPAT}"
+    }
+
+    object Material {
         const val MATERIAL = "com.google.android.material:material:${Versions.MATERIAL}"
     }
 
